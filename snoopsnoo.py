@@ -3,8 +3,6 @@ from selenium import webdriver
 
 baseURL = 'https://snoopsnoo.com/u/'
 
-summary = ''
-synopsis = ''
 userSummary = {}
 userSynopsis = {}
 
@@ -12,14 +10,12 @@ def search(user):
     browser = webdriver.PhantomJS()
     browser.get(baseURL + user)
     doc = BeautifulSoup.BeautifulSoup(browser.page_source)
-    global summary
     summary = doc.find('div', {"id": "summary"})
-    global synopsis
     synopsis = doc.find('div', {"id": "synopsis-data"})
-    parseSummary()
-    parseSynopsis()
+    parseSummary(summary)
+    parseSynopsis(synopsis)
 
-def parseSummary():
+def parseSummary(summary):
     global userSummary
     #Redditor since
     userSummary['signUpDate'] = summary.find('span', {"id": "data-signup_date"}).string
@@ -56,7 +52,7 @@ def parseSummary():
     userSummary['worstPostText'] = worstPost.contents[0]
     userSummary['worstPostLink'] = worstPost.find('a').get('href')
 
-def parseSynopsis():
+def parseSynopsis(synopsis):
     global userSynopsis
     rows = synopsis.findAll('div', {"class": "row"})
     for row in rows:
@@ -69,7 +65,7 @@ def parseSynopsis():
             values.append(content.string)
         userSynopsis[key] = values
 
-def getSynopsis():
+def printUserSynopsis():
     for key in userSynopsis:
         print(key)
         print(userSynopsis[key])
