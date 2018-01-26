@@ -46,8 +46,8 @@ def parseSummary(summary):
     userSummary['lurkPeriodHumanized'] = summary.find('span', {"id": "data-lurk_period_humanized"}).string
     userSummary['lurkPeriodDates'] = summary.find('span', {"id": "data-lurk_period_dates"}).string
     #Gilded
-    userSummary['gildedPosts'] = summary.find('span', {"id": "data-submissions_gilded"}).string
-    userSummary['gildedComments'] = summary.find('span', {"id": "data-comments_gilded"}).string
+    userSummary['gildedPosts'] = summary.find('span', {"id": "data-submissions_gilded"}).find('a').string
+    userSummary['gildedComments'] = summary.find('span', {"id": "data-comments_gilded"}).find('a').string
     #Submission karma
     userSummary['postKarma'] = summary.find('span', {"id": "data-submission_karma"}).string
     userSummary['totalPosts'] = summary.find('span', {"id": "data-total_submissions"}).string
