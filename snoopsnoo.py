@@ -1,22 +1,45 @@
+from __future__ import print_function
 import BeautifulSoup
 from selenium import webdriver
+import time
+import sys
 
-baseURL = 'https://snoopsnoo.com/u/'
+BASE_URL = 'https://snoopsnoo.com/u/'
 
 userSummary = {}
 userSynopsis = {}
 
 def search(user):
+    try:
+        page = getPage(BASE_URL + user)
+        waitCounter = 0
+        print('Waiting for page to load')
+        print('[*', end='')
+        sys.stdout.flush()
+        while page.find('div', {"class": "loading-progress"}):
+            time.sleep(15)
+            print('*', end='')
+            sys.stdout.flush()
+            waitCounter+=1
+            page = getPage(BASE_URL + user)
+            if waitCounter >= 8:
+                break
+        print(']')
+        summary = page.find('div', {"id": "summary"})
+        synopsis = page.find('div', {"id": "synopsis-data"})
+        parseSummary(summary)
+        parseSynopsis(synopsis)
+    except:
+        printError('No user found')
+
+def getPage(url):
     browser = webdriver.PhantomJS()
-    browser.get(baseURL + user)
-    doc = BeautifulSoup.BeautifulSoup(browser.page_source)
-    summary = doc.find('div', {"id": "summary"})
-    synopsis = doc.find('div', {"id": "synopsis-data"})
-    parseSummary(summary)
-    parseSynopsis(synopsis)
+    browser.get(url)
+    return BeautifulSoup.BeautifulSoup(browser.page_source)
 
 def parseSummary(summary):
     global userSummary
+    userSummary = {}
     #Redditor since
     userSummary['signUpDate'] = summary.find('span', {"id": "data-signup_date"}).string
     #Longest period between two consecutive posts
@@ -54,10 +77,12 @@ def parseSummary(summary):
 
 def parseSynopsis(synopsis):
     global userSynopsis
+    userSynopsis = {}
     rows = synopsis.findAll('div', {"class": "row"})
     for row in rows:
         key = row.contents[0].string
         contents = row.contents[1].findAll('span', {"class": "content"})
+        contents += row.contents[1].findAll('span', {"class": "likely"})
         values = []
         if key in userSynopsis:
             values = userSynopsis[key]
@@ -67,5 +92,18 @@ def parseSynopsis(synopsis):
 
 def printUserSynopsis():
     for key in userSynopsis:
-        print(key)
-        print(userSynopsis[key])
+        print(key.upper())
+        for value in userSynopsis[key]:
+            print(value)
+        print('--------------------------------')
+
+def printUserSummary():
+    for key in userSummary:
+        print(key.upper())
+        print(userSummary[key])
+        print('--------------------------------')
+
+def printError(message):
+    print('--------------------------------')
+    print('ERROR: ' + message)
+    print('--------------------------------')
