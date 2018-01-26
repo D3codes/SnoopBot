@@ -4,6 +4,7 @@ from selenium import webdriver
 import time
 import sys
 
+BROWSER = webdriver.PhantomJS()
 BASE_URL = 'https://snoopsnoo.com/u/'
 
 userSummary = {}
@@ -33,9 +34,8 @@ def search(user):
         printError('No user found')
 
 def getPage(url):
-    browser = webdriver.PhantomJS()
-    browser.get(url)
-    return BeautifulSoup.BeautifulSoup(browser.page_source)
+    BROWSER.get(url)
+    return BeautifulSoup.BeautifulSoup(BROWSER.page_source)
 
 def parseSummary(summary):
     global userSummary
